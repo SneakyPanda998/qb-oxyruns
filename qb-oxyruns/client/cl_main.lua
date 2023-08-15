@@ -61,36 +61,57 @@ local CreateDropOffPed = function(coords)
     SetPedAlertness(oxyPed, 0)
     SetPedKeepTask(oxyPed, true)
 	FreezeEntityPosition(oxyPed, true)
-	exports['qb-target']:AddTargetEntity(oxyPed, {
+	exports.ox_target:addSphereZone({
+		name = "oxy_ped_droppoff",
+		coords = vector3(coords.x,coords.y,coords.z),
+		size = vec3(1,1,1),
+		debug = false,
+		drawSprite = false,
 		options = {
 			{
 				type = "client",
 				event = "qb-oxyruns:client:DeliverOxy",
-				icon = 'fas fa-capsules',
-				label = 'Make Deal',
+				icon = "fas fa-capsules",
+				label = "Lag Avtale",
+				distance = 2,
 			}
-		},
-		distance = 2.0
+		}
 	})
 end
 
 --- Creates a random drop off location
 local CreateDropOff = function()
 	hasDropOff = true
-	TriggerEvent('qb-phone:client:CustomNotification', 'CURRENT', "Make your way to the drop-off..", 'fas fa-capsules', '#3480eb', 8000)
+	--TriggerEvent('qb-phone:client:CustomNotification', 'CURRENT', "Make your way to the drop-off..", 'fas fa-capsules', '#3480eb', 8000)
+	lib.defaultNotify({
+		title = "NÅ",
+		description = "Dra til lokasjonen og lever til kunden",
+		position = 'bottom',
+		icon = "pills",
+		iconColor = "#9cde40",
+		duration = 10000,
+	})
 	dropOffCount += 1
 	local randomLoc = Config.Locations[math.random(#Config.Locations)]
 	-- Blip
 	CreateDropOffBlip(randomLoc)
 	-- PolyZone
-	dropOffArea = CircleZone:Create(randomLoc.xyz, 85.0, {
+	dropOffArea = CircleZone:Create(randomLoc.xyz, 200.0, {
 		name = "dropOffArea",
 		debugPoly = false
 	})
 	dropOffArea:onPlayerInOut(function(isPointInside, point)
 		if isPointInside then
 			if oxyPed == nil then
-				TriggerEvent('qb-phone:client:CustomNotification', 'CURRENT', "Make the delivery..", 'fas fa-capsules', '#3480eb', 8000)
+				--TriggerEvent('qb-phone:client:CustomNotification', 'CURRENT', "Make the delivery..", 'fas fa-capsules', '#3480eb', 8000)
+				lib.defaultNotify({
+					title = "NÅ",
+					description = "Lever til kunden",
+					position = 'bottom',
+					icon = "pills",
+					iconColor = "#9cde40",
+					duration = 5000,
+				})
 				CreateDropOffPed(randomLoc)
 			end
 		end
@@ -101,7 +122,15 @@ end
 local StartOxyrun = function()
 	if started then return end
 	started = true
-	TriggerEvent('qb-phone:client:CustomNotification', 'CURRENT', "Wait for a new location..", 'fas fa-capsules', '#3480eb', 8000)
+	--TriggerEvent('qb-phone:client:CustomNotification', 'CURRENT', "Wait for a new location..", 'fas fa-capsules', '#3480eb', 8000)
+	lib.defaultNotify({
+		title = "NÅ",
+		description = "Vent med at sjefen sender deg en lokasjon",
+		position = 'bottom',
+		icon = "pills",
+		iconColor = "#9cde40",
+		duration = 5000,
+	})
 	while started do
 		Wait(4000)
 		if not hasDropOff then
@@ -127,6 +156,7 @@ end
 RegisterNetEvent("qb-oxyruns:client:StartOxy", function()
 	if started then return end
 	QBCore.Functions.TriggerCallback('qb-oxyruns:server:StartOxy', function(canStart)
+	--lib.callback.register('qb-oxyruns:server:StartOxy', function(canStart) --kanskje senere
 		if canStart then
 			StartOxyrun()
 		end
@@ -177,13 +207,30 @@ RegisterNetEvent('qb-oxyruns:client:DeliverOxy', function()
 
 		-- Finishing up
 		dropOffArea:destroy()
+		exports.ox_target:removeZone(oxy_ped_droppoff)
 		Wait(2000)
 		if dropOffCount == Config.RunAmount then
-			TriggerEvent('qb-phone:client:CustomNotification', 'CURRENT', "You are done delivering, go back to the pharmacy..", 'fas fa-capsules', '#3480eb', 20000)
+			--TriggerEvent('qb-phone:client:CustomNotification', 'CURRENT', "You are done delivering, go back to the pharmacy..", 'fas fa-capsules', '#3480eb', 20000)
+			lib.defaultNotify({
+				title = "NÅ",
+				description = "Du er ferdig med leveringen",
+				position = 'bottom',
+				icon = "pills",
+				iconColor = "#9cde40",
+				duration = 10000,
+			})
 			started = false
 			dropOffCount = 0
 		else
-			TriggerEvent('qb-phone:client:CustomNotification', 'CURRENT', "Delivery was good, you will be updated with the next drop-off..", 'fas fa-capsules', '#3480eb', 20000)
+			--TriggerEvent('qb-phone:client:CustomNotification', 'CURRENT', "Delivery was good, you will be updated with the next drop-off..", 'fas fa-capsules', '#3480eb', 20000)
+			lib.defaultNotify({
+				title = "NÅ",
+				description = "Good shit... Vent til neste lokasjon",
+				position = 'bottom',
+				icon = "pills",
+				iconColor = "#9cde40",
+				duration = 5000,
+			})
 		end
 		DeleteOxyped()
 		hasDropOff = false
@@ -208,9 +255,13 @@ CreateThread(function()
 				type = "client",
 				event = "qb-oxyruns:client:StartOxy",
 				icon = 'fas fa-capsules',
-				label = 'Start Oxyrun ($'..Config.StartOxyPayment..')',
+				label = 'Snakk med sjefen ('..Config.StartOxyPayment..'kr)',
 			}
 		},
 		distance = 2.0
 	})
 end)
+
+--RegisterCommand("testOxy", function()
+--	TriggerEvent("qb-oxyruns:server:StartOxy")
+--end)
