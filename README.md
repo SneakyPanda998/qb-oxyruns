@@ -1,9 +1,7 @@
 # qb-oxyruns
-Oxyruns script for QBCore based on the original
+Oxyruns script for QBox based on the original
 
 Based on the original one from the QBCore Framework, edited by Lionh34rt#4305
-
-Discord: https://discord.gg/AWyTUEnGeN
 
 GitHub: https://github.com/Lionh34rt/
 
