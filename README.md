@@ -1,5 +1,6 @@
 # qb-oxyruns
 Oxyruns script for QBox based on the original
+Reworked to work with QBox.
 
 Based on the original one from the QBCore Framework, edited by Lionh34rt#4305
 
