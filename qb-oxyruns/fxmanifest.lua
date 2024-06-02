@@ -7,7 +7,10 @@ dependencies {
 	'qb-target'
 }
 
-shared_script 'shared/sh_config.lua'
+shared_script {
+'shared/sh_config.lua',
+'@ox_lib/init.lua',
+}
 
 client_scripts {
     '@PolyZone/client.lua',
